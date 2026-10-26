@@ -32,7 +32,7 @@ Two 2-hour, instructor-led sessions for analysts who work with **de-identified p
 **Option A: Git folder (recommended)**
 1. In the left sidebar, click **Workspace** → open your home folder.
 2. Click **Create** → **Git folder**.
-3. Paste the repo URL: `https://github.com/<OWNER>/databricks-claims-analytics-training` → **Create Git folder**.
+3. Paste the repo URL: `https://github.com/animesh-jha-2025/databricks-claims-analytics-training` → **Create Git folder**.
 
 **Option B: ZIP fallback (if GitHub is blocked on your network)**
 1. Download `databricks-claims-analytics-training.dbc` from the **Releases** page of this repo (or the file your instructor emailed you).
