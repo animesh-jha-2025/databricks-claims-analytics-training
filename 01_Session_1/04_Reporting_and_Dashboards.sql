@@ -99,6 +99,11 @@ GROUP BY ALL
 
 -- MAGIC %md
 -- MAGIC ## 3. Build the AI/BI Dashboard (live demo, about 10 minutes)
+-- MAGIC
+-- MAGIC > ⚡ **Fast path (recommended in class):** open **`04a_Create_Scorecard_Dashboard`** → **Run all**. It creates and publishes a finished, formatted dashboard in about 30 seconds and prints the link. Then do the "make it yours" edits at the end of that notebook.
+-- MAGIC >
+-- MAGIC > The steps below build the same kind of dashboard by hand, for anyone who wants to practice after class.
+-- MAGIC
 -- MAGIC 1. Left sidebar → **Dashboards** → **Create dashboard**.
 -- MAGIC 2. **Data** tab → **Create from SQL**, paste **Dataset 1**, run it, and rename it `scorecard`. Repeat for **Dataset 2** (`deliveries`).
 -- MAGIC 3. **Canvas** tab → add widgets:
@@ -107,8 +112,10 @@ GROUP BY ALL
 -- MAGIC    * **Bar chart:** X = `client_name`, Y = `AVG(orphan_rate_pct)`
 -- MAGIC    * **Table** from `deliveries`, sorted by `on_time_pct`
 -- MAGIC 4. Add a **Filter** widget on `client_name` and another on `month` (date range).
--- MAGIC 5. Try the **Ask the AI / Genie** button on the dashboard: *"Which client had the highest duplicate rate last quarter?"*
--- MAGIC 6. Click **Publish**. Then use **Schedule** to refresh it and email subscribers (for example, every Monday at 7 am).
+-- MAGIC 5. Click **Publish**. Then use **Schedule** to refresh it and email subscribers (for example, every Monday at 7 am).
+-- MAGIC 6. On the **published** dashboard, open **Genie** (top right) and ask: *"Which client had the highest duplicate rate last quarter?"*
+-- MAGIC
+-- MAGIC > ⚠️ **Publish first.** In the draft (edit) view, the AI panel is the authoring assistant: it writes queries and adds widgets to your draft instead of answering the question. Genie answers questions only on the published dashboard.
 -- MAGIC
 -- MAGIC > 💡 **When is a Databricks dashboard enough?** Operational scorecards, data-quality monitoring, and internal sharing. **Tableau or another BI tool** makes sense when you need an existing enterprise report, pixel-perfect formatting, or external distribution. Tableau connects to a Databricks SQL warehouse through its built-in Databricks connector.
 

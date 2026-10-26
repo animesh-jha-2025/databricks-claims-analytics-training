@@ -13,6 +13,7 @@ Two 2-hour, instructor-led sessions for analysts who work with **de-identified p
 | **1** | `01_Session_1/02_SQL_for_Claims_Analysis` | Joins, CTEs, window functions; orphan and duplicate claims | 25 min |
 | **1** | `01_Session_1/03_PySpark_for_Analysts` | The same analysis in PySpark; reusable data-quality checks | 20 min |
 | **1** | `01_Session_1/04_Reporting_and_Dashboards` | Scorecard table and AI/BI Dashboard | 15 min |
+| **1** | `01_Session_1/04a_Create_Scorecard_Dashboard` | Creates a finished dashboard in one click, then you edit it | 2 min |
 | **2** | `02_Session_2/05_Query_Optimization` | Reading a query profile; 6 patterns for faster queries | 30 min |
 | **2** | `02_Session_2/06_Automating_Reporting_with_Jobs` (+ `06a`, `06b`) | Scheduled scorecard refresh with a data-quality gate | 20 min |
 | **2** | `02_Session_2/07_GitHub_Basics_with_Git_Folders` | Branch, commit, pull request, rollback | 15 min |

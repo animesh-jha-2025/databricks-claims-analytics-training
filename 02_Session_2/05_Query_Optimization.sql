@@ -105,11 +105,38 @@ WHERE service_date >= '2025-03-01' AND service_date < '2025-04-01'
 
 -- MAGIC %md
 -- MAGIC ## Pattern 4: lay the data out for the way you filter (liquid clustering)
--- MAGIC Our large table was written in random order, so every file contains every month, and a one-month filter still reads **all** files.
+-- MAGIC Our large table was written in random order, so **every file contains every month**. Even a one-month filter has to open **all** the files.
 -- MAGIC
--- MAGIC **Liquid clustering** groups rows with similar values into the same files, so filters on those columns can skip most of the files.
+-- MAGIC **Liquid clustering** stores rows with similar dates in the same files. A one-month filter can then **skip** the files it doesn't need.
 -- MAGIC
--- MAGIC > ℹ️ We set a **small target file size** only so that our small demo table has enough files to show skipping. In real tables, let Databricks choose the file size.
+-- MAGIC We'll run **the same query twice**, before and after clustering, and compare the query profiles:
+-- MAGIC
+-- MAGIC ```
+-- MAGIC  Step 1: BEFORE          Step 2: cluster the data       Step 3: AFTER            Step 4: compare
+-- MAGIC  one-month query    ──►  CLUSTER BY (service_date)  ──► same one-month query ──► files read vs skipped
+-- MAGIC  on the original table                                  on the clustered table
+-- MAGIC ```
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Step 1 · BEFORE: one month of claims from the original table
+-- MAGIC Run the cell → **See performance** → click the query → **Query profile**. Write down **Files read**, **Files pruned**, and **Bytes read**.
+
+-- COMMAND ----------
+
+-- BEFORE: original (unclustered) table
+SELECT count(*) AS claims, sum(paid_amount) AS paid
+FROM medical_claims_large
+WHERE service_date >= '2025-03-01' AND service_date < '2025-04-01'
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Step 2 · Cluster a copy of the table by `service_date`
+-- MAGIC `CLUSTER BY` tells Databricks how to lay out the data, and `OPTIMIZE` rewrites the files in that order. This takes about 20 seconds.
+-- MAGIC
+-- MAGIC > ℹ️ The output is `OPTIMIZE`'s log, and you can ignore it. We set a **small target file size** only so that our small demo table has enough files to show skipping. On real tables, let Databricks choose the file size.
 
 -- COMMAND ----------
 
@@ -122,26 +149,54 @@ OPTIMIZE medical_claims_clustered;
 
 -- COMMAND ----------
 
--- Compare the number of files in each table
-SELECT 'unclustered' AS table_name, (SELECT count(DISTINCT _metadata.file_path) FROM medical_claims_large) AS files
-UNION ALL
-SELECT 'clustered',   (SELECT count(DISTINCT _metadata.file_path) FROM medical_claims_clustered)
+-- MAGIC %md
+-- MAGIC ### Step 3 · AFTER: the exact same query on the clustered table
+-- MAGIC Same answer (same claim count and dollars). Open its **query profile** and compare it with Step 1.
 
 -- COMMAND ----------
 
--- How many files does a one-month query actually touch?
-SELECT 'unclustered' AS table_name, count(DISTINCT _metadata.file_path) AS files_read
-FROM medical_claims_large
-WHERE service_date >= '2025-03-01' AND service_date < '2025-04-01'
-UNION ALL
-SELECT 'clustered', count(DISTINCT _metadata.file_path)
+-- AFTER: clustered table (same filter, same result)
+SELECT count(*) AS claims, sum(paid_amount) AS paid
 FROM medical_claims_clustered
 WHERE service_date >= '2025-03-01' AND service_date < '2025-04-01'
 
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC 👉 Open the query profile for the clustered query and find **files pruned**.
+-- MAGIC ### Step 4 · Compare: how many files did each query have to open?
+
+-- COMMAND ----------
+
+-- Files in each table, and how many of them hold March 2025 data (= files the query must open)
+WITH t AS (
+  SELECT 'BEFORE: original' AS table_version, _metadata.file_path AS file, service_date FROM medical_claims_large
+  UNION ALL
+  SELECT 'AFTER: clustered',                  _metadata.file_path,         service_date FROM medical_claims_clustered
+)
+SELECT table_version,
+       count(DISTINCT file)                                                                   AS files_in_table,
+       count(DISTINCT CASE WHEN service_date >= '2025-03-01' AND service_date < '2025-04-01' THEN file END) AS files_read,
+       count(DISTINCT file)
+         - count(DISTINCT CASE WHEN service_date >= '2025-03-01' AND service_date < '2025-04-01' THEN file END) AS files_skipped
+FROM t
+GROUP BY table_version
+ORDER BY table_version DESC
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### ✅ What you should see (instructor's test run)
+-- MAGIC | From the query profile | BEFORE (original) | AFTER (clustered) |
+-- MAGIC |---|---|---|
+-- MAGIC | Files read | **8 of 8** (every file) | **2 of 16** |
+-- MAGIC | Files pruned (skipped) | 0 | **14** |
+-- MAGIC | Bytes read | 9.8 MB | **1.5 MB** (about 85% less) |
+-- MAGIC | Total time (first run) | about 3.6 s | about 1.3 s |
+-- MAGIC | Result | 97,402 claims | 97,402 claims (same) |
+-- MAGIC
+-- MAGIC **How to read it:** the clustered table has *more* files (16) because each one is smaller, but the query opens only the **2 files** that hold March data and skips the other 14.
+-- MAGIC
+-- MAGIC > ⏱️ **Why time is the weakest signal here:** with only 34 MB of data, every query is fast, and **running a query again returns a cached result** in well under a second. Judge the change by **files and bytes read**. On a table with billions of rows, the same 85% cut in data read turns minutes into seconds.
 -- MAGIC
 -- MAGIC 💡 For managed tables in Unity Catalog you can also use `CLUSTER BY AUTO`. Databricks then chooses the clustering columns based on how the table is queried (**predictive optimization**).
 
