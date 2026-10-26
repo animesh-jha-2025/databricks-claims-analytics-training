@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # 08 · AI-assisted development and an introduction to Genie
-# MAGIC **Session 2 · about 20 minutes**
+# MAGIC **Session 2 · about 15 minutes**
 # MAGIC
 # MAGIC ## Which tool for which job?
 # MAGIC | You want to… | Use | Why |

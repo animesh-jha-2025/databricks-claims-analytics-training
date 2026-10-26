@@ -1,7 +1,7 @@
 -- Databricks notebook source
 -- MAGIC %md
 -- MAGIC # 01 · Workspace tour and finding trusted data with Unity Catalog
--- MAGIC **Session 1 · about 25 minutes**
+-- MAGIC **Session 1 · about 20 minutes**
 -- MAGIC
 -- MAGIC **You will learn to:**
 -- MAGIC 1. Find your way around the workspace (Workspace, Catalog, SQL Editor, Jobs, Dashboards, Genie).

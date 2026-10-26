@@ -1,7 +1,7 @@
 -- Databricks notebook source
 -- MAGIC %md
 -- MAGIC # 04 · Reporting and dashboards: build a client scorecard
--- MAGIC **Session 1 · about 20 minutes**
+-- MAGIC **Session 1 · about 15 minutes**
 -- MAGIC
 -- MAGIC **Pattern:** do the heavy logic **once** in a scorecard table, and point the dashboard at that table. Dashboards then load quickly, every chart shows the same numbers, and in Session 2 we'll **schedule** the refresh.
 -- MAGIC
